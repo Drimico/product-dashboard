@@ -1,68 +1,114 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: Raleway;
+  src: url("./assets/fonts/Raleway-VariableFont_wght.ttf");
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+@import "tailwindcss";
+
+@import "tw-animate-css";
+
+* {
+  @apply box-border;
 }
-a:hover {
-  color: #535bf2;
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: var(--shadow-input), 0 0 0px 1000px var(--bg-light) inset !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  caret-color: var(--text) !important;
+}
+
+@theme {
+  --font-raleway: Raleway, sans-serif;
+  --breakpoint-xs: 320px;
+  --shadow-input: inset 0 1px 2px #ffffff70, 0 4px 6px #00000030, 0 6px 10px #00000015;
+  --gradient: linear-gradient(0deg, var(--bg) 90%, var(--bg-light));
+  --radial-color: oklch(1 0.2 50);
+  --bg-dark: oklch(0.85 0.075 80);
+  --bg: oklch(0.95 0.075 80);
+  --bg-light: oklch(1 0.075 80);
+  --text: oklch(0.15 0.15 80);
+  --text-muted: oklch(0.4 0.15 80);
+  --highlight: oklch(0.8 0.2 270);
+  --border: oklch(0.6 0.16 60);
+  --border-muted: oklch(0.7 0.15 80);
+  --primary: oklch(0.4 0.15 80);
+  --secondary: oklch(0.2 0.15 260);
+  --danger: oklch(0.5 0.3 30);
+  --light-danger: oklch(0.7 0.25 30);
+  --warning: oklch(0.5 0.15 100);
+  --success: oklch(0.5 0.15 160);
+  --info: oklch(0.5 0.15 260);
+  --shadow-s: inset 0 1px 2px #ffffff30, 0 1px 2px #00000030, 0 2px 4px #00000015;
+  --shadow-m: inset 0 1px 2px #ffffff50, 0 2px 4px #00000030, 0 4px 8px #00000015;
+  --shadow-l: inset 0 1px 2px #ffffff70, 0 4px 6px #00000030, 0 6px 10px #00000015;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --gradient: linear-gradient(0deg, var(--bg) 90%, var(--bg-light));
+  --radial-color: oklch(0.2 0.4 100);
+  --bg-dark: oklch(0.1 0.075 80);
+  --bg: oklch(0.15 0.075 80);
+  --bg-light: oklch(0.2 0.075 80);
+  --text: oklch(0.96 0.1 80);
+  --text-muted: oklch(0.76 0.1 80);
+  --highlight: oklch(0.2 0.2 20);
+  --border: oklch(0.4 0.15 80);
+  --border-muted: oklch(0.3 0.15 80);
+  --primary: oklch(0.76 0.15 80);
+  --secondary: oklch(0.5 0.2 200);
+  --danger: oklch(0.5 0.3 30);
+  --light-danger: oklch(0.3 0.3 30);
+  --warning: oklch(0.7 0.15 100);
+  --success: oklch(0.7 0.15 160);
+  --info: oklch(0.7 0.15 260);
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  width: 100vw;
+  min-height: 100%;
+  box-sizing: border-box;
+  background-color: var(--bg-dark);
+  @apply bg-no-repeat bg-cover m-0 p-0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
-}
-
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+@layer utilities {
+  .radial-overlay {
+    position: relative;
+    overflow: hidden;
   }
-  a:hover {
-    color: #747bff;
+
+  .radial-overlay::before {
+    content: "";
+    position: absolute;
+    top: var(--y);
+    left: var(--x);
+    width: 50rem;
+    height: 50rem;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: 0.5s, top 0s, left 0s;
+    background: radial-gradient(var(--radial-color), transparent, transparent);
+    pointer-events: none;
+    z-index: 0;
   }
-  button {
-    background-color: #f9f9f9;
+  .radial-overlay:hover::before {
+    opacity: 1;
+  }
+  .radial-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0px;
+    background: var(--gradient);
+    border-radius: 20px;
+    z-index: -1;
+  }
+  .radial-overlay > * {
+    position: relative;
+    z-index: 1;
   }
 }
