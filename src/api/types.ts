@@ -13,8 +13,8 @@ export interface RegisterResponse {
   avatar: string;
   role: string;
   id: number;
-  creationAt: Date;
-  updatedAt: Date;
+  creationAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface LoginData {
@@ -34,7 +34,12 @@ export interface UsersResponse {
   role: string;
   avatar: string;
 }
-
+export interface UsersData {
+  email: string;
+  password: string;
+  name: string;
+  avatar: string;
+}
 
 export type RefreshResponse = LoginResponse;
 export interface IsAvailableEmailResponse {

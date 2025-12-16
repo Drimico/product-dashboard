@@ -5,10 +5,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useUserStore } from "../stores/useUserStore";
 import ImagePlaceholder from "../components/core/ImagePlaceholder";
-import ToggleTheme from "@/components/core/ToggleTheme";
+import ToggleTheme from "@/components/core/buttons/ToggleTheme";
+import { useRadial } from "@/hooks/useRadial";
 const Register = () => {
   const { setUser, addTokens } = useUserStore();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { position, handleMouseMove } = useRadial();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -62,12 +63,7 @@ const Register = () => {
       setIsLoading(false);
     }
   };
-  const handleMouseMove = (e: React.MouseEvent<HTMLFormElement>) => {
-    const card = e.currentTarget;
-    const x = e.pageX - card.offsetLeft;
-    const y = e.pageY - card.offsetTop;
-    setPosition({ x, y });
-  };
+
   return (
     <div className="w-screen h-screen flex justify-center items-center">
       <form
@@ -84,7 +80,7 @@ const Register = () => {
         <div className="text-6xl font-raleway">Register</div>
         <div className="flex justify-around items-center w-full h-140">
           <div className="w-100 h-100">
-            <ImagePlaceholder onImageUpload={(url) => setAvatar(url)} />
+            <ImagePlaceholder type="auth" onImageUpload={(url) => setAvatar(url)} />
           </div>
           <div className="flex flex-col justify-evenly h-full">
             <div className="flex flex-col gap-2">
@@ -110,7 +106,7 @@ const Register = () => {
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white"
+                className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white"
                 disabled={isLoading}
               />
               {emailErrorMessage !== "" && (
@@ -126,7 +122,7 @@ const Register = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white"
+                className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white"
               />
               {passwordErrorMessage !== "" && (
                 <span className="text-red-500">{passwordErrorMessage}</span>
@@ -144,7 +140,7 @@ const Register = () => {
           </div>
         </div>
         <span className="absolute left-[40%] bottom-[7%] w-0">
-          <ToggleTheme />
+          <ToggleTheme type="auth" />
         </span>
       </form>
     </div>

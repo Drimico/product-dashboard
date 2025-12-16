@@ -2,15 +2,18 @@ import { Plus } from "lucide-react";
 import { useRef, useState } from "react";
 import { fileUpload } from "../../api/requests";
 import { Spinner } from "../ui/spinner";
+import Remove from "./buttons/Remove";
 
 interface ImagePlaceholderProps {
   onImageUpload?: (url: string) => void;
+  type?: "auth" | "profile";
+  initialImage?: string;
 }
 
-const ImagePlaceholder = ({ onImageUpload }: ImagePlaceholderProps = {}) => {
+const ImagePlaceholder = ({ onImageUpload, type, initialImage }: ImagePlaceholderProps = {}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadErrorMessage, setUploadErrorMessage] = useState("");
-  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>("");
+  const [uploadedImageUrl, setUploadedImageUrl] = useState<string>(initialImage || "");
   const [isUploading, setIsUploading] = useState(false);
   const uploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,18 +46,14 @@ const ImagePlaceholder = ({ onImageUpload }: ImagePlaceholderProps = {}) => {
     }
   };
   return (
-    <label htmlFor="image">
+    <label>
       {uploadedImageUrl ? (
-        <div className="w-full h-full flex flex-col ">
+        <div className="w-full h-full flex flex-col relative">
           <img src={uploadedImageUrl} alt="" className="w-full h-full object-cover rounded-full" />
-          {uploadErrorMessage && <span className="text-(--light-danger)">{uploadErrorMessage}</span>}
-          <button
-            type="button"
-            onClick={(e) => deleteImage(e)}
-            className="absolute top-[90%] text-(--text) bg-(--light-danger) text-2xl rounded-full p-2 font-raleway cursor-pointer hover:bg-(--danger) hover:text-white/90 transition-colors ease-in-out duration-200"
-          >
-            Remove
-          </button>
+          {uploadErrorMessage && (
+            <span className="text-(--light-danger)">{uploadErrorMessage}</span>
+          )}
+          <Remove type={type} deleteImage={deleteImage} />
         </div>
       ) : isUploading ? (
         <div className="flex justify-center items-center w-full h-full">

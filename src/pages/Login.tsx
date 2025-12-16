@@ -1,14 +1,15 @@
 import { useState } from "react";
 import type { LoginData } from "../api/types";
-import { login } from "../api/requests";
+import { getUsers, login } from "../api/requests";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { useUserStore } from "@/stores/useUserStore";
-import ToggleTheme from "@/components/core/ToggleTheme";
+import ToggleTheme from "@/components/core/buttons/ToggleTheme";
+import { useRadial } from "@/hooks/useRadial";
 
 const Login = () => {
-  const { deleteTokens, addTokens } = useUserStore();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const { deleteTokens, addTokens, setUser } = useUserStore();
+  const { position, handleMouseMove } = useRadial();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
@@ -27,15 +28,20 @@ const Login = () => {
     if (!isValid) return;
     deleteTokens();
     setIsLoading(true);
+
     const payload: LoginData = {
       email,
       password,
     };
     try {
+      const users = await getUsers();
       const data = await login(payload);
-      addTokens(data.access_token, data.refresh_token);
-
-      navigate("/");
+      const user = users.find((user) => user.email === email);
+      if (user) {
+        setUser(user);
+        addTokens(data.access_token, data.refresh_token);
+        navigate("/");
+      }
     } catch (err) {
       if (err instanceof Error) {
         const errMessage = err.message;
@@ -52,12 +58,6 @@ const Login = () => {
         }
       }
     }
-  };
-  const handleMouseMove = (e: React.MouseEvent<HTMLFormElement>) => {
-    const card = e.currentTarget;
-    const x = e.pageX - card.offsetLeft;
-    const y = e.pageY - card.offsetTop;
-    setPosition({ x, y });
   };
 
   return (
@@ -78,9 +78,10 @@ const Login = () => {
           <input
             type="text"
             id="email"
+            name="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className=" w-100 p-4 rounded-full text-xl border-t-2 border-t-white/90"
+            className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white/90"
             disabled={isLoading}
           />
           {emailErrorMessage !== "" && <span className="text-red-500">{emailErrorMessage}</span>}
@@ -92,9 +93,10 @@ const Login = () => {
           <input
             type="password"
             id="password"
+            name="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className=" w-100 p-4 rounded-full text-xl border-t-2 border-t-white/90"
+            className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white/90"
             disabled={isLoading}
           />
           {passwordErrorMessage !== "" && (
@@ -111,7 +113,7 @@ const Login = () => {
           </Link>
         </div>
         <span className="absolute left-[35%] bottom-[6%] w-0">
-          <ToggleTheme />
+          <ToggleTheme type="auth" />
         </span>
       </form>
     </div>
