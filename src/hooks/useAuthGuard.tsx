@@ -12,7 +12,7 @@ const useAuthGuard = () => {
     if (!token && authPages.includes(location.pathname)) {
       navigate("/login");
     }
-  }, [location.pathname]);
+  }, [location.pathname, user?.accessToken]);
   return null;
 };
 

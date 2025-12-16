@@ -18,6 +18,7 @@ import type {
   RefreshResponse,
   RegisterData,
   RegisterResponse,
+  UsersData,
   UsersResponse,
 } from "./types.ts";
 
@@ -30,10 +31,14 @@ export const login = async (data: LoginData): Promise<LoginResponse> => {
   const response = await api.post(loginPath, data);
   return response.data;
 };
+
 export const getUsers = async (): Promise<UsersResponse[]> => {
   const response = await api.get(usersPath);
   return response.data;
-
+};
+export const updateUserData = async (data: UsersData, userId: number): Promise<UsersResponse> => {
+  const response = await api.put(`${usersPath}/${userId}`, data);
+  return response.data;
 }
 export const refresh = async (token: string): Promise<RefreshResponse> => {
   const response = await api.post(refreshTokenPath, {

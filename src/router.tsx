@@ -1,5 +1,6 @@
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import Register from "./pages/Register";
 
 export const router = [
@@ -18,4 +19,9 @@ export const router = [
     element: <Register />,
     showNavbar: false,
   },
+  {
+    path: "/profile",
+    element: <Profile />,
+    showNavbar: false,
+  }
 ];
