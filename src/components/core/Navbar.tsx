@@ -7,7 +7,9 @@ import ProfileModal from "../modals/ProfileModal";
 const Navbar = () => {
   const location = useLocation();
   const { user } = useUserStore();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
+  console.log(isOpen);
+
   return (
     <div className="flex w-full h-40 items-center justify-between font-raleway text-(--text) px-40 relative bg-(--bg) shadow-(--shadow-l)">
       <span className="text-3xl font-bold">Products List</span>

@@ -46,7 +46,7 @@ const ImagePlaceholder = ({ onImageUpload, type, initialImage }: ImagePlaceholde
     }
   };
   return (
-    <label>
+    <>
       {uploadedImageUrl ? (
         <div className="w-full h-full flex flex-col relative">
           <img src={uploadedImageUrl} alt="" className="w-full h-full object-cover rounded-full" />
@@ -60,24 +60,26 @@ const ImagePlaceholder = ({ onImageUpload, type, initialImage }: ImagePlaceholde
           <Spinner />
         </div>
       ) : (
-        <div className="border-10 border-dashed border-(--border-muted) flex justify-center items-center cursor-pointer text-(--text-muted) hover:text-(--text) hover:border-(--border) group w-full h-full rounded-full">
-          <Plus
-            size={100}
-            className="transition-transform duration-300 group-hover:rotate-90 cursor-pointer"
-          />
-          <input
-            type="file"
-            id="image"
-            multiple
-            name="image"
-            className="opacity-0 w-0 h-0"
-            accept="image/*"
-            ref={fileInputRef}
-            onChange={uploadImage}
-          />
-        </div>
+        <label>
+          <div className="border-10 border-dashed border-(--border-muted) flex justify-center items-center cursor-pointer text-(--text-muted) hover:text-(--text) hover:border-(--border) group w-full h-full rounded-full">
+            <Plus
+              size={100}
+              className="transition-transform duration-300 group-hover:rotate-90 cursor-pointer"
+            />
+            <input
+              type="file"
+              id="image"
+              multiple
+              name="image"
+              className="opacity-0 w-0 h-0"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={uploadImage}
+            />
+          </div>
+        </label>
       )}
-    </label>
+    </>
   );
 };
 export default ImagePlaceholder;

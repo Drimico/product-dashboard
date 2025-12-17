@@ -37,14 +37,15 @@ api.interceptors.response.use(
     return response;
   },
   async (error) => {
-    const { addTokens, deleteTokens, user } = useUserStore.getState();
+    const { addTokens, deleteTokens, tokens } = useUserStore.getState();
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isAuthEndpoint = originalRequest.url.includes(loginPath) || originalRequest.url.includes(refreshTokenPath);
+      const isAuthEndpoint =
+        originalRequest.url.includes(loginPath) || originalRequest.url.includes(refreshTokenPath);
 
       if (!isAuthEndpoint) {
         originalRequest._retry = true;
-        const refreshToken = user?.refreshToken;
+        const refreshToken = tokens.refreshToken;
 
         if (refreshToken) {
           try {

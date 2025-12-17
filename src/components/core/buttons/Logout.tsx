@@ -2,11 +2,11 @@ import { LogOut } from "lucide-react";
 import { useUserStore } from "@/stores/useUserStore";
 
 const Logout = () => {
-  const { deleteTokens } = useUserStore();
+  const { clearUser } = useUserStore();
 
   return (
     <button
-      onClick={() => deleteTokens()}
+      onClick={() => clearUser()}
       className="flex items-center w-full h-full hover:bg-(--bg-light) cursor-pointer gap-2 px-2"
     >
       <LogOut size={30} />
