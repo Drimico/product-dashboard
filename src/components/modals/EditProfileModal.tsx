@@ -82,7 +82,10 @@ const EditProfileModal = ({ setIsOpen }: EditProfileModalProps) => {
       >
         <div className="flex justify-between text-4xl border-b-4 border-b-(--border) w-full col-span-2 ">
           <span>Edit Profile</span>
-          <button onClick={() => setIsOpen(prev => !prev)} className="cursor-pointer w-fit h-fit transition-transform duration-300 hover:rotate-90">
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            className="cursor-pointer w-fit h-fit transition-transform duration-300 hover:rotate-90"
+          >
             <X size={30} />
           </button>
         </div>

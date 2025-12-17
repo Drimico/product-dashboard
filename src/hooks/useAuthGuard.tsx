@@ -6,13 +6,13 @@ const useAuthGuard = () => {
   const authPages = ["/"];
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useUserStore();
+  const { tokens } = useUserStore();
   useEffect(() => {
-    const token = user?.accessToken;
+    const token = tokens.accessToken;
     if (!token && authPages.includes(location.pathname)) {
       navigate("/login");
     }
-  }, [location.pathname, user?.accessToken]);
+  }, [location.pathname, tokens.accessToken]);
   return null;
 };
 

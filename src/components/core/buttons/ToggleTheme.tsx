@@ -5,7 +5,7 @@ import { tv, type VariantProps } from "tailwind-variants";
 
 const buttonStyles = tv({
   slots: {
-    base: "relative flex items-center h-15 font-raleway",
+    base: "relative flex items-center h-15 font-raleway cursor-pointer",
     text: "whitespace-nowrap",
   },
   variants: {
