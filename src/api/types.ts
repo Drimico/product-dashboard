@@ -5,7 +5,6 @@ export interface RegisterData {
   avatar?: string;
   role: string;
 }
-
 export interface RegisterResponse {
   email: string;
   password: string;
@@ -16,12 +15,10 @@ export interface RegisterResponse {
   creationAt?: Date;
   updatedAt?: Date;
 }
-
 export interface LoginData {
   email: string;
   password: string;
 }
-
 export interface LoginResponse {
   access_token: string;
   refresh_token: string;
@@ -40,7 +37,6 @@ export interface UsersData {
   name: string;
   avatar: string;
 }
-
 export type RefreshResponse = LoginResponse;
 export interface IsAvailableEmailResponse {
   isAvailable: boolean;
@@ -50,8 +46,7 @@ export interface PaginationParams {
   offset: number;
   page: number;
 }
-
-export interface ProductsResponse {
+export interface ProductResponse {
   id: number;
   title: string;
   slug: string;
@@ -62,34 +57,36 @@ export interface ProductsResponse {
     name: string;
     slug: string;
     image: string;
-    creationAt: Date;
-    updatedAt: Date;
   };
   images: string[];
   creationAt: Date;
   updatedAt: Date;
 }
-
-export interface ProductsCreate {
+export interface ProductUpdateData {
   title: string;
-  description: string;
-  categoryId: number;
   price: number;
+  categoryId: number;
   images: string[];
 }
-
-export interface ProductsUpdate {
+export interface ProductCreateData {
   title: string;
+  price: number;
   description: string;
   categoryId: number;
-  price: number;
   images: string[];
 }
-export interface ProductsDelete {
-  path: string;
-  timestamp: Date;
+export interface CategoryResponse {
+  id: number;
   name: string;
-  message: string;
+  slug: string;
+  image: string;
+}
+export interface CategoryUpdateData {
+  name: string;
+}
+export interface CategoryCreateData {
+  name: string;
+  image: string;
 }
 export interface FileUploadResponse {
   originalname: string;

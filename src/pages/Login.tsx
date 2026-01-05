@@ -1,65 +1,16 @@
-import { useState } from "react";
-import type { LoginData } from "../api/types";
-import { getUsers, login } from "../api/requests";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { useUserStore } from "@/stores/useUserStore";
-import ToggleTheme from "@/components/core/buttons/ToggleTheme";
+import { Link } from "react-router-dom";
+import ToggleTheme from "@/components/buttons/ToggleTheme";
 import { useRadial } from "@/hooks/useRadial";
+import useLogin from "@/hooks/useLogin";
 
 const Login = () => {
-  const { deleteTokens, addTokens, setUser } = useUserStore();
-  const { position, handleMouseMove } = useRadial();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { validateLogin } = useAuth({ setEmailErrorMessage, setPasswordErrorMessage });
-  const navigate = useNavigate();
+  const { handleMouseMove, position } = useRadial();
+  const { errorMessages, onLogin, isLoading, loginForm, setLoginForm } = useLogin();
 
-  const onLogin = async (e: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setEmailErrorMessage("");
-    setPasswordErrorMessage("");
-
-    const isValid = await validateLogin(email, password);
-
-    if (!isValid) return;
-    deleteTokens();
-    setIsLoading(true);
-
-    const payload: LoginData = {
-      email,
-      password,
-    };
-    try {
-      const users = await getUsers();
-      const data = await login(payload);
-      const user = users.find((user) => user.email === email);
-      if (user) {
-        setUser(user);
-        addTokens(data.access_token, data.refresh_token);
-        navigate("/");
-      }
-    } catch (err) {
-      if (err instanceof Error) {
-        const errMessage = err.message;
-
-        if (errMessage) {
-          const lowerMessage = errMessage.toLowerCase();
-          if (lowerMessage.includes("email")) {
-            setEmailErrorMessage(errMessage);
-          } else if (lowerMessage.includes("password")) {
-            setPasswordErrorMessage(errMessage);
-          } else {
-            setEmailErrorMessage(errMessage);
-          }
-        }
-      }
-    }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setLoginForm((prev) => ({ ...prev, [name]: value }));
   };
-
   return (
     <div className="w-screen h-screen flex justify-center items-center">
       <form
@@ -79,12 +30,11 @@ const Login = () => {
             type="text"
             id="email"
             name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={loginForm.email}
+            onChange={handleInputChange}
             className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white/90"
-            disabled={isLoading}
           />
-          {emailErrorMessage !== "" && <span className="text-red-500">{emailErrorMessage}</span>}
+          {errorMessages.email !== "" && <span className="text-red-500">{errorMessages.email}</span>}
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor="password" className="text-2xl font-raleway">
@@ -94,16 +44,16 @@ const Login = () => {
             type="password"
             id="password"
             name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            value={loginForm.password}
+            onChange={handleInputChange}
             className="bg-(--bg-light) w-100 p-4 rounded-full focus:outline-none text-xl shadow-(--shadow-l) border-t-2 border-t-white/90"
-            disabled={isLoading}
           />
-          {passwordErrorMessage !== "" && (
-            <span className="text-red-500">{passwordErrorMessage}</span>
-          )}
+          {errorMessages.password !== "" && <span className="text-red-500">{errorMessages.password}</span>}
         </div>
-        <button className="text-2xl font-raleway bg-(--bg-light) text-(--text) hover:bg-(--highlight) hover:text-white/90 w-50 p-2 rounded-full cursor-pointer transition-colors ease-in-out duration-200 shadow-(--shadow-l) border-t-2 border-t-white">
+        <button
+          disabled={isLoading}
+          className="text-2xl font-raleway bg-(--bg-light) text-(--text) hover:bg-(--highlight) hover:transition-colors hover:duration-300 hover:ease-in-out w-50 p-2 rounded-full cursor-pointer shadow-(--shadow-l) border-t-2 border-t-white"
+        >
           Submit
         </button>
         <div className="text-2xl flex flex-col font-raleway text-(--text-muted)">

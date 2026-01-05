@@ -2,8 +2,11 @@ import { useProductsStore } from "@/stores/useProductsStore";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const CustomPagination = () => {
+  const { totalProducts } = useProductsStore();
+
   const { page, limit, setPagination } = useProductsStore();
-  const totalPages = Math.ceil(30 / limit);
+
+  const totalPages = Math.ceil(totalProducts.length / limit);
 
   const onNext = () => {
     const nextPage = page + 1;
@@ -39,7 +42,7 @@ const CustomPagination = () => {
                 index + 1 === page ? "bg-(--highlight)" : "bg-(--bg-light)"
               }`}
             >
-              <span className="absolute top-[25%] left-[40%] ">{index + 1}</span>
+              <span className="absolute top-[25%] left-[38%] ">{index + 1}</span>
             </button>
           );
         })}
