@@ -1,30 +1,22 @@
-import { useEffect, useState } from "react";
-import { getAllProducts } from "../api/requests";
-import type { PaginationParams, ProductsResponse } from "../api/types";
-import CustomPagination from "../components/core/CustomPagination";
+import Table from "@/components/homeComponents/Table";
+import useFetchCategories from "@/hooks/useFetchCategories";
+import useFetchProducts from "@/hooks/useFetchProducts";
 import { useProductsStore } from "@/stores/useProductsStore";
+import { useEffect } from "react";
 
 const Home = () => {
-  const [products, setProducts] = useState<ProductsResponse[]>([]);
-  const { offset, page, limit } = useProductsStore();
+  const { fetchProducts } = useFetchProducts();
+  const { fetchCategories } = useFetchCategories();
+  const { page, offset, products, selectedFilter, selectedCategory, searchedWord } = useProductsStore();
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const params: PaginationParams = { limit, offset, page };
-        const response = await getAllProducts(params);
-        console.log(response);
-
-        setProducts(response);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, [page, offset]);
-
+    fetchProducts();
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, offset, selectedCategory, selectedFilter, searchedWord, products.length]);
   return (
     <div className="w-screen h-screen flex justify-center items-center">
-      <CustomPagination />
+      <Table />
     </div>
   );
 };

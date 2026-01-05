@@ -1,5 +1,5 @@
-import Previous from "@/components/core/buttons/Previous";
-import ToggleTheme from "@/components/core/buttons/ToggleTheme";
+import Previous from "@/components/buttons/Previous";
+import ToggleTheme from "@/components/buttons/ToggleTheme";
 import EditProfileModal from "@/components/modals/EditProfileModal";
 import { useUserStore } from "@/stores/useUserStore";
 import { useState } from "react";

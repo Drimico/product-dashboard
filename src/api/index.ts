@@ -40,8 +40,7 @@ api.interceptors.response.use(
     const { addTokens, deleteTokens, tokens } = useUserStore.getState();
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
-      const isAuthEndpoint =
-        originalRequest.url.includes(loginPath) || originalRequest.url.includes(refreshTokenPath);
+      const isAuthEndpoint = originalRequest.url.includes(loginPath) || originalRequest.url.includes(refreshTokenPath);
 
       if (!isAuthEndpoint) {
         originalRequest._retry = true;

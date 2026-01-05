@@ -12,6 +12,7 @@ const useAuthGuard = () => {
     if (!token && authPages.includes(location.pathname)) {
       navigate("/login");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname, tokens.accessToken]);
   return null;
 };

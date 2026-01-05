@@ -15,7 +15,7 @@ const buttonStyles = tv({
         text: "hidden w-0 opacity-0",
       },
       profile: {
-        base: "gap-2 w-full cursor-pointer hover:bg-(--bg-light) px-2",
+        base: "gap-2 w-full cursor-pointer hover:bg-(--highlight) px-2",
         text: "flex",
       },
     },
