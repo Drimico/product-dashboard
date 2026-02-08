@@ -1,6 +1,6 @@
 // useFetchProducts.ts - FIXED VERSION
 import { usePaginationStore } from "@/stores/usePaginationStore";
-import { getCategories, pagination } from "../api/requests";
+import { pagination } from "../api/requests";
 import { useProductsStore } from "@/stores/useProductsStore";
 import type { PaginationParams } from "@/api/types";
 import { useCallback, useRef } from "react";
@@ -12,7 +12,6 @@ const useFetchProducts = () => {
     priceRange,
     selectedCategory,
     searchedWord,
-    setCategories,
     setHasNextPage,
     setPriceRange,
     setInitialMinPrice,
@@ -78,9 +77,6 @@ const useFetchProducts = () => {
 
     setProducts(displayProducts);
     setHasNextPage(hasNextPage);
-
-    const categories = await getCategories();
-    setCategories(categories);
   }, [
     selectedCategory,
     limit,
@@ -90,7 +86,7 @@ const useFetchProducts = () => {
     priceRange.price_max,
     setProducts,
     setTotalProducts,
-    setCategories,
+
     setHasNextPage,
     setPriceRange,
     setInitialMaxPrice,
