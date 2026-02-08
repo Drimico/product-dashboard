@@ -1,11 +1,11 @@
 import Delete from "../buttons/Delete";
 
-interface ActiveModalProps {
+interface ActionModalProps {
   onClose: () => void;
   productId: number;
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const ActiveModal = ({ productId, onClose, setIsEditModalOpen }: ActiveModalProps) => {
+const ActionModal = ({ productId, onClose, setIsEditModalOpen }: ActionModalProps) => {
   return (
     <>
       <div onClick={onClose} className="fixed inset-0 z-10" />
@@ -25,10 +25,7 @@ const ActiveModal = ({ productId, onClose, setIsEditModalOpen }: ActiveModalProp
           <Delete productId={productId} />
         </div>
         <div className="w-full h-14 cursor-pointer py-2">
-          <button
-            className="w-full h-full hover:bg-(--highlight) cursor-pointer transition-colors duration-200 ease-in-out"
-            onClick={onClose}
-          >
+          <button className="w-full h-full hover:bg-(--highlight) cursor-pointer transition-colors duration-200 ease-in-out" onClick={onClose}>
             Close
           </button>
         </div>
@@ -37,4 +34,4 @@ const ActiveModal = ({ productId, onClose, setIsEditModalOpen }: ActiveModalProp
   );
 };
 
-export default ActiveModal;
+export default ActionModal;

@@ -1,15 +1,13 @@
 import type { CategoryResponse } from "@/api/types";
-import useFetchProducts from "@/hooks/useFetchProducts";
+import { usePaginationStore } from "@/stores/usePaginationStore";
 import { useProductsStore } from "@/stores/useProductsStore";
 
 const CategoryModal = () => {
-  const { fetchProducts } = useFetchProducts();
-  const { categories, setSelectedCategory, setPagination } = useProductsStore();
-
-  const handleCategoryClick = async (category: CategoryResponse) => {
-    await fetchProducts();
-    setPagination(0, 1);
+  const { categories, setSelectedCategory } = useProductsStore();
+  const { setPagination } = usePaginationStore();
+  const handleCategoryClick = (category: CategoryResponse) => {
     setSelectedCategory(category);
+    setPagination(0, 1);
   };
   return (
     <>

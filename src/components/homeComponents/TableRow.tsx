@@ -1,6 +1,6 @@
 import type { ProductResponse } from "@/api/types";
 import { Ellipsis } from "lucide-react";
-import ActiveModal from "../modals/ActiveModal";
+import ActionModal from "../modals/ActionModal";
 import { useState } from "react";
 import EditProductModal from "../modals/EditProductModal";
 
@@ -24,7 +24,7 @@ const TableRow = ({ product, isOpen, onToggle, onClose }: TableRowProps) => {
       <button onClick={onToggle} className="cursor-pointer ">
         <Ellipsis className="w-[62.23px]" />
       </button>
-      {isOpen && <ActiveModal setIsEditModalOpen={setIsEditModalOpen} productId={product.id} onClose={onClose} />}
+      {isOpen && <ActionModal setIsEditModalOpen={setIsEditModalOpen} productId={product.id} onClose={onClose} />}
       {isEditModalOpen && <EditProductModal product={product} setIsEditModalOpen={setIsEditModalOpen} />}
     </div>
   );

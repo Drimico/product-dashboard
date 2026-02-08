@@ -1,44 +1,44 @@
-import { ChevronDown, ListFilter, Plus, Search, X } from "lucide-react";
+import { ChevronDown, Plus, Search, X } from "lucide-react";
 import { useState } from "react";
 import CategoryModal from "../modals/CategoryModal";
 import { useProductsStore } from "@/stores/useProductsStore";
-import FilterModal from "../modals/FilterModal";
 import AddProductModal from "../modals/CreateProductModal";
+import { usePaginationStore } from "@/stores/usePaginationStore";
+import RangeSlider from "./RangeSlider";
+import { useDeleteCategories } from "@/hooks/useDeleteCategories";
 
 const TableTop = () => {
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
-  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isRangeSliderOpen, setIsRangeSliderOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const { selectedCategory, selectedFilter, setSelectedCategory, setSelectedFilter, setSearchedWord } =
-    useProductsStore();
-  const categoryClickLogic = () => {
+  const { selectedCategory, setSelectedCategory, setSearchedWord, priceRange, initialMinPrice, initialMaxPrice } = useProductsStore();
+  const { setPagination } = usePaginationStore();
+  const { deleteCategories } = useDeleteCategories();
+  const categoryClickLogic = async () => {
     if (!selectedCategory) {
       setIsCategoryModalOpen((prev) => !prev);
-    } else setSelectedCategory(null);
+    } else {
+      setSelectedCategory(null);
+    }
+    await deleteCategories();
   };
-  const filterClickLogic = () => {
-    if (!selectedFilter) {
-      setIsFilterModalOpen((prev) => !prev);
-    } else setSelectedFilter("");
-  };
+
   const searchLogic = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     setSearchedWord(e.target.value);
+    setPagination(0, 1);
   };
+
   const clearSearch = () => {
     setSearch("");
     setSearchedWord("");
   };
+
   return (
     <div className="flex w-full h-10 justify-between items-center mb-8">
       <div className="flex relative w-80 h-fit bg-(--bg-light) border-2 border-(--border) rounded-xl">
-        <input
-          value={search}
-          onChange={(e) => searchLogic(e)}
-          type="text"
-          className="w-full h-full focus:outline-none p-2"
-        />
+        <input value={search} onChange={searchLogic} type="text" className="w-full h-full focus:outline-none p-2" />
         {search ? (
           <X onClick={clearSearch} size={25} className="absolute right-2 top-2 cursor-pointer" />
         ) : (
@@ -53,38 +53,28 @@ const TableTop = () => {
         >
           {!selectedCategory ? (
             <div className="flex items-center gap-2 cursor-pointer">
-              <span>Category </span>
+              <span>Category</span>
               <ChevronDown size={25} />
             </div>
           ) : (
-            selectedCategory && (
-              <div className="flex items-center gap-2 group cursor-pointer">
-                <span>{selectedCategory.name}</span>
-                <X className="group-hover:rotate-90 transition-transform duration-300 ease-in-out" size={25} />
-              </div>
-            )
+            <div className="flex items-center gap-2 group cursor-pointer">
+              <span>{selectedCategory.name}</span>
+              <X className="group-hover:rotate-90 transition-transform duration-300 ease-in-out" size={25} />
+            </div>
           )}
           {isCategoryModalOpen && <CategoryModal />}
         </button>
-        <button
-          onClick={filterClickLogic}
+
+        <div
+          onClick={() => setIsRangeSliderOpen((prev) => !prev)}
           className="flex items-center border-2 border-(--border) px-3 py-1 rounded-xl bg-(--bg-light) shadow-(--shadow-s) gap-4 relative w-fit h-fit"
         >
-          {!selectedFilter ? (
-            <div className="flex items-center gap-2 cursor-pointer">
-              <ListFilter size={20} />
-              <span>Filter</span>
-            </div>
-          ) : (
-            selectedFilter && (
-              <div className="flex items-center gap-2 group cursor-pointer">
-                <span>{selectedFilter}</span>
-                <X className="group-hover:rotate-90 transition-transform duration-300 ease-in-out" size={25} />
-              </div>
-            )
-          )}
-          {isFilterModalOpen && <FilterModal />}
-        </button>
+          <span>Price Range</span>${priceRange.price_min === 0 ? initialMinPrice : priceRange.price_min} - $
+          {priceRange.price_max === 0 ? initialMaxPrice : priceRange.price_max}
+          <ChevronDown size={25} />
+          {isRangeSliderOpen && <RangeSlider setIsRangeSliderOpen={setIsRangeSliderOpen} />}
+        </div>
+
         <button
           onClick={() => setIsAddProductModalOpen((prev) => !prev)}
           className="flex items-center border-2 border-(--border) px-3 py-2 rounded-xl bg-(--secondary) shadow-(--shadow-s) gap-2 relative cursor-pointer"

@@ -2,56 +2,52 @@ import type { CategoryResponse, ProductResponse } from "@/api/types";
 import { create } from "zustand";
 
 interface ProductsStore {
-  offset: number;
-  page: number;
-  limit: number;
   products: ProductResponse[];
+  totalProducts: ProductResponse[];
   categories: CategoryResponse[];
   selectedCategory: CategoryResponse | null;
-  selectedFilter: "" | "Price Low To High" | "Price High To Low";
-  totalProducts: ProductResponse[];
   searchedWord: string;
+  hasNextPage: boolean;
+  priceRange: { price_min: number; price_max: number };
+  initialMinPrice: number;
+  initialMaxPrice: number;
   setSearchedWord: (word: string) => void;
-  setTotalProducts: (totalProducts: ProductResponse[]) => void;
   setProducts: (products: ProductResponse[]) => void;
+  setTotalProducts: (products: ProductResponse[]) => void;
   setCategories: (categories: CategoryResponse[]) => void;
   setSelectedCategory: (category: CategoryResponse | null) => void;
-  setSelectedFilter: (filter: "" | "Price Low To High" | "Price High To Low") => void;
-  setPagination: (offset: number, page: number) => void;
+  setPriceRange: (priceRange: { price_min: number; price_max: number }) => void;
+  setInitialMinPrice: (price: number) => void;
+  setInitialMaxPrice: (price: number) => void;
   removeProduct: (id: number) => void;
+  setHasNextPage: (hasNextPage: boolean) => void;
 }
 export const useProductsStore = create<ProductsStore>((set) => ({
-  offset: 0,
-  page: 1,
-  limit: 8,
   products: [],
+  totalProducts: [],
   categories: [],
   selectedCategory: null,
-  selectedFilter: "",
-  totalProducts: [],
   searchedWord: "",
-  setSearchedWord: (word: string) => set({ searchedWord: word }),
-  setTotalProducts: (totalProducts: ProductResponse[]) => set({ totalProducts }),
-  setPagination: (offset: number, page: number) => {
-    set({ offset, page });
+  priceRange: {
+    price_min: 0,
+    price_max: 0,
   },
+  initialMinPrice: 0,
+  initialMaxPrice: 0,
+  hasNextPage: false,
+  setSearchedWord: (word: string) => set({ searchedWord: word }),
   setProducts: (products: ProductResponse[]) => set({ products }),
+  setTotalProducts: (totalProducts: ProductResponse[]) => set({ totalProducts }),
   removeProduct: (id: number) =>
     set((state) => {
       const newProducts = state.products.filter((product) => product.id !== id);
-
-      if (newProducts.length === 0 && state.page > 1) {
-        const newPage = state.page - 1;
-        return {
-          products: newProducts,
-          page: newPage,
-          offset: (newPage - 1) * state.limit,
-        };
-      }
 
       return { products: newProducts };
     }),
   setCategories: (categories: CategoryResponse[]) => set({ categories }),
   setSelectedCategory: (category: CategoryResponse | null) => set({ selectedCategory: category }),
-  setSelectedFilter: (filter) => set({ selectedFilter: filter, page: 1, offset: 0 }),
+  setPriceRange: (priceRange) => set({ priceRange }),
+  setInitialMinPrice: (price: number) => set({ initialMinPrice: price }),
+  setInitialMaxPrice: (price: number) => set({ initialMaxPrice: price }),
+  setHasNextPage: (hasNextPage: boolean) => set({ hasNextPage }),
 }));
