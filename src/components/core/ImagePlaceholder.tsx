@@ -22,11 +22,13 @@ const ImagePlaceholder = ({ onImageUpload, initialImage }: ImagePlaceholderProps
 
     try {
       const response = await fileUpload(file);
-      const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(response.location)}`;
+
+      const proxiedUrl = `https://images.weserv.nl/?url=${encodeURIComponent(response.location)}`;
+      onImageUpload?.(proxiedUrl);
       setUploadedImageUrl(proxiedUrl);
       setUploadErrorMessage("");
-      onImageUpload?.(proxiedUrl);
-    } catch {
+    } catch (error) {
+      console.error("Upload error:", error);
       setUploadErrorMessage("Image upload failed. Please try again.");
       setUploadedImageUrl("");
     } finally {
@@ -48,7 +50,7 @@ const ImagePlaceholder = ({ onImageUpload, initialImage }: ImagePlaceholderProps
     <>
       {uploadedImageUrl ? (
         <div className="w-full h-full flex flex-col relative">
-          <img src={uploadedImageUrl} alt="" className="w-full h-full object-cover rounded-full" />
+          <img src={uploadedImageUrl} alt="aaaaaaaaaaaaaaaaaaaaaaaaaaaa" className="w-full h-full object-cover rounded-full" />
           {uploadErrorMessage && <span className="text-(--light-danger)">{uploadErrorMessage}</span>}
           <button
             type="button"

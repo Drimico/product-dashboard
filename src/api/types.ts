@@ -1,3 +1,4 @@
+
 export interface RegisterData {
   email: string;
   name: string;
@@ -42,9 +43,12 @@ export interface IsAvailableEmailResponse {
   isAvailable: boolean;
 }
 export interface PaginationParams {
-  limit: number;
-  offset: number;
-  page: number;
+  limit?: number;
+  offset?: number;
+  categoryId?: number;
+  price_min?: number;
+  price_max?: number;
+  title?: string;
 }
 export interface ProductResponse {
   id: number;

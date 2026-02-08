@@ -53,7 +53,11 @@ export const refresh = async (token: string): Promise<RefreshResponse> => {
   });
   return response.data;
 };
-export const getAllProducts = async (params: PaginationParams): Promise<ProductResponse[]> => {
+export const getAllProducts = async (): Promise<ProductResponse[]> => {
+  const response = await api.get(productsPath);
+  return response.data;
+};
+export const pagination = async (params: PaginationParams): Promise<ProductResponse[]> => {
   const response = await api.get(productsPath, { params });
   return response.data;
 };
@@ -69,12 +73,8 @@ export const updateProduct = async (data: ProductUpdateData, productId: number):
   const response = await api.put(`${productsPath}/${productId}`, data);
   return response.data;
 };
-export const getCategories = async (params: { limit: number }): Promise<CategoryResponse[]> => {
-  const response = await api.get(categoriesPath, { params });
-  return response.data;
-};
-export const getProductsByCategory = async (categoryId: number): Promise<ProductResponse[]> => {
-  const response = await api.get(`${categoriesPath}/${categoryId}/products`);
+export const getCategories = async (): Promise<CategoryResponse[]> => {
+  const response = await api.get(categoriesPath);
   return response.data;
 };
 export const updateCategory = async (data: CategoryUpdateData, categoryId: number): Promise<CategoryResponse> => {
@@ -85,6 +85,10 @@ export const createCategory = async (data: CategoryCreateData): Promise<Category
   const response = await api.post(categoriesPath, data);
   return response.data;
 };
+export const deleteCategory = async (categoryId: number): Promise<boolean> => {
+  const response = await api.delete(`${categoriesPath}/${categoryId}`);
+  return response.data;
+}
 export const fileUpload = async (file: File): Promise<FileUploadResponse> => {
   const formData = new FormData();
   formData.append("file", file);

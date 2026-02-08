@@ -84,12 +84,12 @@ const AddProductModal = ({ setIsAddProductModalOpen }: AddProductModalProps) => 
             <span className="text-2xl">Product Image:</span>
             <div className="relative w-60 h-60 flex flex-col gap-2">
               <ImagePlaceholder onImageUpload={handleProductImageUpload} />
-              {!createdProduct.images[0] && <span className="text-red-500 absolute top-[108%] left-[18%]">{errorMessages.image}</span>}
+              {!createdProduct.images[0] && <span className="text-red-500 absolute top-[108%] left-[18%]">{errorMessages.prdocutImage}</span>}
             </div>
             <span className="text-2xl">Category Image:</span>
             <div className="relative w-60 h-60 flex flex-col gap-2">
               <ImagePlaceholder onImageUpload={handleCategoryImageUpload} />
-              {!createdProduct.categoryImage && <span className="text-red-500 absolute top-[108%] left-[18%]">{errorMessages.image}</span>}
+              {!createdProduct.categoryImage && <span className="text-red-500 absolute top-[108%] left-[18%]">{errorMessages.categoryImage}</span>}
             </div>
           </div>
           <button

@@ -1,34 +1,101 @@
-import { getAllProducts, getProductsByCategory } from "../api/requests";
+// useFetchProducts.ts - FIXED VERSION
+import { usePaginationStore } from "@/stores/usePaginationStore";
+import { getCategories, pagination } from "../api/requests";
 import { useProductsStore } from "@/stores/useProductsStore";
+import type { PaginationParams } from "@/api/types";
+import { useCallback, useRef } from "react";
 
 const useFetchProducts = () => {
-  const { setProducts, setTotalProducts, selectedCategory, selectedFilter, offset, limit, searchedWord } = useProductsStore();
+  const {
+    setProducts,
+    setTotalProducts,
+    priceRange,
+    selectedCategory,
+    searchedWord,
+    setCategories,
+    setHasNextPage,
+    setPriceRange,
+    setInitialMinPrice,
+    setInitialMaxPrice,
+  } = useProductsStore();
+  const { limit, offset } = usePaginationStore();
+  const prevFilterRef = useRef({ categoryId: selectedCategory?.id, searchedWord });
 
-  const fetchProducts = async () => {
-    let allProducts;
-    if (selectedCategory) {
-      allProducts = await getProductsByCategory(selectedCategory.id);
-    } else {
-      allProducts = await getAllProducts({ limit: 1000, offset: 0, page: 1 });
+  const fetchProducts = useCallback(async () => {
+    const currentCategoryId = selectedCategory?.id;
+    const filterChanged = prevFilterRef.current.categoryId !== currentCategoryId || prevFilterRef.current.searchedWord !== searchedWord;
+
+    prevFilterRef.current = { categoryId: currentCategoryId, searchedWord };
+
+    const totalParamsForRange: PaginationParams = {
+      limit: 0,
+      offset: 0,
+    };
+    if (selectedCategory) totalParamsForRange.categoryId = selectedCategory.id;
+    if (searchedWord) totalParamsForRange.title = searchedWord;
+
+    const allProductsForRange = await pagination(totalParamsForRange);
+
+    const allPrices = allProductsForRange.map((p) => p.price);
+    const minPrice = allPrices.length ? Math.min(...allPrices) : 0;
+    const maxPrice = allPrices.length ? Math.max(...allPrices) : 0;
+
+    setInitialMinPrice(minPrice);
+    setInitialMaxPrice(maxPrice);
+
+    if (filterChanged) {
+      setPriceRange({ price_min: minPrice, price_max: maxPrice });
     }
-    let sortedProducts = [...allProducts];
 
-    if (searchedWord) {
-      sortedProducts = sortedProducts.filter((product) => product.title.toLowerCase().trim().includes(searchedWord.toLowerCase().trim()));
+    const totalParams: PaginationParams = {
+      limit: 0,
+      offset: 0,
+    };
+    if (selectedCategory) totalParams.categoryId = selectedCategory.id;
+    if (searchedWord) totalParams.title = searchedWord;
+    if (priceRange.price_min > 0 || priceRange.price_max > 0) {
+      totalParams.price_min = priceRange.price_min;
+      totalParams.price_max = priceRange.price_max;
     }
-    if (selectedFilter === "Price Low To High") {
-      sortedProducts.sort((a, b) => a.price - b.price);
-    } else if (selectedFilter === "Price High To Low") {
-      sortedProducts.sort((a, b) => b.price - a.price);
+
+    const totalProductsFiltered = await pagination(totalParams);
+    setTotalProducts(totalProductsFiltered);
+
+    const params: PaginationParams = {
+      limit: limit + 1,
+      offset,
+    };
+    if (selectedCategory) params.categoryId = selectedCategory.id;
+    if (searchedWord) params.title = searchedWord;
+    if (priceRange.price_min > 0 || priceRange.price_max > 0) {
+      params.price_min = priceRange.price_min;
+      params.price_max = priceRange.price_max;
     }
 
-    setTotalProducts(sortedProducts);
+    const fetchedProducts = await pagination(params);
+    const hasNextPage = fetchedProducts.length > limit;
+    const displayProducts = fetchedProducts.slice(0, limit);
 
-    const paginatedProducts = sortedProducts.slice(offset, offset + limit);
-    setProducts(paginatedProducts);
+    setProducts(displayProducts);
+    setHasNextPage(hasNextPage);
 
-    return paginatedProducts;
-  };
+    const categories = await getCategories();
+    setCategories(categories);
+  }, [
+    selectedCategory,
+    limit,
+    offset,
+    searchedWord,
+    priceRange.price_min,
+    priceRange.price_max,
+    setProducts,
+    setTotalProducts,
+    setCategories,
+    setHasNextPage,
+    setPriceRange,
+    setInitialMaxPrice,
+    setInitialMinPrice,
+  ]);
 
   return { fetchProducts };
 };

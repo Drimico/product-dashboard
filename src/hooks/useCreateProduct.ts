@@ -1,5 +1,7 @@
 import { createCategory, createProduct } from "@/api/requests";
+import { usePaginationStore } from "@/stores/usePaginationStore";
 import { useProductsStore } from "@/stores/useProductsStore";
+import axios from "axios";
 import { useState } from "react";
 
 interface UseCreateProductProps {
@@ -14,7 +16,8 @@ interface ProductForm {
   images: string[];
 }
 const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) => {
-  const { totalProducts, limit, categories, setTotalProducts, setPagination } = useProductsStore();
+  const { categories, totalProducts } = useProductsStore();
+  const { limit, setPagination } = usePaginationStore();
   const [createdProduct, setCreatedProduct] = useState<ProductForm>({
     title: "",
     price: "",
@@ -32,11 +35,12 @@ const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) =
     else if (createdProduct.title.trim() === "") newErrors.name = "Name must contain characters";
     else if (!/[a-zA-Z]/.test(createdProduct.title)) newErrors.name = "Name must contain letters";
     if (!createdProduct.categoryName) newErrors.category = "Category is required";
+    else if (createdProduct.categoryName.trim() === "") newErrors.category = "Category must contain characters";
     if (!createdProduct.price.trim()) newErrors.price = "Price is required";
     else if (isNaN(+createdProduct.price)) newErrors.price = "Price must be a valid number";
     else if (+createdProduct.price <= 0) newErrors.price = "Price must be greater than 0";
-    if (!createdProduct.images) newErrors.image = "Image is required";
-    if (!createdProduct.categoryImage) newErrors.image = "Image is required";
+    if (!createdProduct.images) newErrors.productImage = "Image is required";
+    if (!createdProduct.categoryImage) newErrors.categoryImage = "Image is required";
     if (!createdProduct.description) newErrors.description = "Description is required";
     else if (createdProduct.description.trim() === "") newErrors.description = "Description must contain characters";
 
@@ -44,29 +48,24 @@ const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) =
       setErrorMessages(newErrors);
       return;
     }
+
     setIsLoading(true);
+
     try {
       const categorySlug = createdProduct.categoryName
         .trim()
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "");
-      const productSlug = createdProduct.title
-        .trim()
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-+|-+$/g, "");
+
       const categoryCreateData = {
         name: createdProduct.categoryName,
         image: createdProduct.categoryImage,
       };
+
       const existingCategorySlug = categories.find((category) => category.slug === categorySlug);
-      const existingProductSlug = totalProducts.find((product) => product.slug === productSlug);
-      if (existingProductSlug) {
-        setErrorMessages({ name: "Product name already exists" });
-        return;
-      }
       const categoryId = existingCategorySlug ? existingCategorySlug.id : (await createCategory(categoryCreateData)).id;
+
       const productCreateData = {
         title: createdProduct.title,
         price: +createdProduct.price,
@@ -74,15 +73,20 @@ const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) =
         categoryId,
         images: createdProduct.images,
       };
-      const response = await createProduct(productCreateData);
-      const newTotalProducts = [...totalProducts, response];
-      const totalPages = Math.ceil(newTotalProducts.length / limit);
-      const lastPageOffset = (totalPages - 1) * limit;
-      setPagination(lastPageOffset, totalPages);
-      setTotalProducts(newTotalProducts);
+
+      await createProduct(productCreateData);
+
+      const lastPage = Math.ceil((totalProducts.length + 1) / limit);
+      setPagination((lastPage - 1) * limit, lastPage);
       setIsAddProductModalOpen(false);
     } catch (error) {
-      if (error instanceof Error) alert(error.message);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.data.message.includes("product")) {
+          setErrorMessages({ name: "Product with this name already exists" });
+        } else {
+          alert(error.response?.data.message);
+        }
+      }
     } finally {
       setIsLoading(false);
     }

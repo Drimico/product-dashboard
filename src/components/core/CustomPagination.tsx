@@ -1,56 +1,78 @@
+import { usePaginationStore } from "@/stores/usePaginationStore";
 import { useProductsStore } from "@/stores/useProductsStore";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Ellipsis } from "lucide-react";
 
 const CustomPagination = () => {
-  const { totalProducts } = useProductsStore();
-
-  const { page, limit, setPagination } = useProductsStore();
-
+  const { currentPage, limit, setPagination } = usePaginationStore();
+  const { hasNextPage, totalProducts } = useProductsStore();
   const totalPages = Math.ceil(totalProducts.length / limit);
 
   const onNext = () => {
-    const nextPage = page + 1;
+    const nextPage = currentPage + 1;
     setPagination((nextPage - 1) * limit, nextPage);
   };
   const onPrev = () => {
-    const prevPage = page - 1;
+    const prevPage = currentPage - 1;
     setPagination((prevPage - 1) * limit, prevPage);
   };
-  const handlePageClick = (pageNumber: number) => {
-    setPagination((pageNumber - 1) * limit, pageNumber);
+  const onPageChange = (page: number) => {
+    setPagination((page - 1) * limit, page);
+  };
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+
+    if (totalPages <= 3) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      pages.push(1);
+
+      if (currentPage < 3) {
+        pages.push(2, 3, "...", totalPages);
+      } else if (currentPage > totalPages - 2) {
+        pages.push("...", totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push("...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages);
+      }
+    }
+
+    return pages;
   };
   return (
     <div className="flex gap-2 items-center text-(--text)">
       <button
         onClick={onPrev}
-        disabled={page === 1}
-        className="flex items-center disabled:opacity-50 disabled:cursor-default p-3 rounded-full cursor-pointer bg-(--bg-light) shadow-(--shadow-l)"
+        disabled={currentPage === 1}
+        className="flex items-center justify-center disabled:opacity-50 disabled:cursor-default h-13 w-13 rounded-full cursor-pointer bg-(--bg-light) shadow-(--shadow-l) "
       >
         <ChevronLeft />
       </button>
-
-      {Array(totalPages)
-        .fill(0)
-        .map((_, index) => {
+      {getPageNumbers().map((page, index) => {
+        if (typeof page === "string") {
+          return (
+            <span key={index} className="w-10 h-13 justify-center flex items-end px-2 ">
+              <Ellipsis />
+            </span>
+          );
+        } else {
           return (
             <button
+              className={`${
+                currentPage === page && "bg-(--highlight)"
+              } flex items-center justify-center disabled:opacity-50 disabled:cursor-default h-13 w-13 rounded-full cursor-pointer bg-(--bg-light) shadow-(--shadow-l)`}
               key={index}
-              onClick={() => {
-                handlePageClick(index + 1);
-              }}
-              className={`relative p-6 rounded-full cursor-pointer shadow-(--shadow-l) transition-colors duration-200 ease-in-out ${
-                index + 1 === page ? "bg-(--highlight)" : "bg-(--bg-light)"
-              }`}
+              onClick={() => onPageChange(page)}
             >
-              <span className="absolute top-[25%] left-[38%] ">{index + 1}</span>
+              {page}
             </button>
           );
-        })}
-
+        }
+      })}
       <button
         onClick={onNext}
-        disabled={page === totalPages}
-        className="flex items-center p-3 bg-(--bg-light) rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-default shadow-(--shadow-l)"
+        disabled={!hasNextPage}
+        className="flex items-center h-13 w-13 justify-center bg-(--bg-light) rounded-full cursor-pointer disabled:opacity-50 disabled:cursor-default shadow-(--shadow-l)"
       >
         <ChevronRight />
       </button>
