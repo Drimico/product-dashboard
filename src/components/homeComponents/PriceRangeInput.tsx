@@ -1,25 +1,34 @@
 import { useProductsStore } from "@/stores/useProductsStore";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 interface PriceRangeInputProps {
-  value: number;
   title: string;
   minVal: number;
   maxVal: number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setMaxVal?: React.Dispatch<React.SetStateAction<number>>;
   setMinVal?: React.Dispatch<React.SetStateAction<number>>;
+  debounce: (arg: { price_min: number; price_max: number }) => void;
 }
 
-const PriceRangeInput = ({ value, title, onChange, minVal, maxVal, setMinVal, setMaxVal }: PriceRangeInputProps) => {
+const PriceRangeInput = ({ title, minVal, maxVal, setMinVal, setMaxVal, debounce }: PriceRangeInputProps) => {
   const { initialMinPrice, initialMaxPrice } = useProductsStore();
   const timeoutRef = useRef<number | null>(null);
   const intervalRef = useRef<number | null>(null);
   const speedRef = useRef(500);
 
+  const currentPropValue = title === "Min" ? minVal : maxVal;
+
+  const [localInput, setLocalInput] = useState<string>(currentPropValue.toString());
+
+  const [prevPropValue, setPrevPropValue] = useState(currentPropValue);
+
+  if (currentPropValue !== prevPropValue) {
+    setPrevPropValue(currentPropValue);
+    setLocalInput(currentPropValue.toString());
+  }
+
   const increment = (incrementValue: number) => {
-    
     const updateMinVal = () => {
       if (setMinVal) {
         setMinVal((prev) => {
@@ -44,7 +53,6 @@ const PriceRangeInput = ({ value, title, onChange, minVal, maxVal, setMinVal, se
 
     updateMinVal();
     updateMaxVal();
-
     speedRef.current = 500;
 
     timeoutRef.current = setTimeout(() => {
@@ -62,6 +70,28 @@ const PriceRangeInput = ({ value, title, onChange, minVal, maxVal, setMinVal, se
       intervalRef.current = setInterval(runIncrement, speedRef.current);
     }, 300);
   };
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocalInput(value);
+
+    const numValue = parseInt(value);
+    if (isNaN(numValue)) return;
+
+    if (title === "Min") {
+      if (numValue >= initialMinPrice && numValue < maxVal) {
+        setMinVal?.(numValue);
+        debounce({ price_min: numValue, price_max: maxVal });
+      }
+    } else {
+      if (numValue <= initialMaxPrice && numValue > minVal) {
+        setMaxVal?.(numValue);
+        debounce({ price_min: minVal, price_max: numValue });
+      }
+    }
+  };
+  const handleBlur = () => {
+    setLocalInput(currentPropValue.toString());
+  };
   const stopIncrement = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -72,6 +102,8 @@ const PriceRangeInput = ({ value, title, onChange, minVal, maxVal, setMinVal, se
       intervalRef.current = null;
     }
     speedRef.current = 500;
+
+    debounce({ price_min: minVal, price_max: maxVal });
   };
 
   return (
@@ -83,8 +115,9 @@ const PriceRangeInput = ({ value, title, onChange, minVal, maxVal, setMinVal, se
           className="field-sizing-content min-w-15 max-w-25 h-fit focus:outline-none px-1"
           onChange={onChange}
           type="number"
-          id="fromInput"
-          value={value}
+          value={localInput}
+          onBlur={handleBlur}
+          name={title === "Min" ? "price_min" : "price_max"}
           min={initialMinPrice}
           max={initialMaxPrice}
         />

@@ -1,4 +1,3 @@
-
 export interface RegisterData {
   email: string;
   name: string;
@@ -46,8 +45,8 @@ export interface PaginationParams {
   limit?: number;
   offset?: number;
   categoryId?: number;
-  price_min?: number;
-  price_max?: number;
+  price_min: number | null;
+  price_max: number | null;
   title?: string;
 }
 export interface ProductResponse {
