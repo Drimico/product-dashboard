@@ -69,8 +69,7 @@ const TableTop = () => {
           onClick={() => setIsRangeSliderOpen((prev) => !prev)}
           className="flex items-center border-2 border-(--border) px-3 py-1 rounded-xl bg-(--bg-light) shadow-(--shadow-s) gap-4 relative w-fit h-fit"
         >
-          <span>Price Range</span>${priceRange.price_min === 0 ? initialMinPrice : priceRange.price_min} - $
-          {priceRange.price_max === 0 ? initialMaxPrice : priceRange.price_max}
+          <span>Price Range</span>${priceRange.price_min ?? initialMinPrice} - ${priceRange.price_max ?? initialMaxPrice}
           <ChevronDown size={25} />
           {isRangeSliderOpen && <RangeSlider setIsRangeSliderOpen={setIsRangeSliderOpen} />}
         </div>

@@ -6,12 +6,12 @@ import { useEffect } from "react";
 
 const Home = () => {
   const { fetchProducts } = useFetchProducts();
-  const { selectedCategory, searchedWord, priceRange, totalProducts } = useProductsStore();
+  const { selectedCategory, searchedWord, priceRange, initialMaxPrice, initialMinPrice } = useProductsStore();
   const { offset, currentPage } = usePaginationStore();
 
   useEffect(() => {
     fetchProducts();
-  }, [offset, selectedCategory, searchedWord, currentPage, priceRange, totalProducts.length]);
+  }, [offset, selectedCategory, searchedWord, currentPage, priceRange, initialMaxPrice, initialMinPrice]);
   return (
     <div className="w-screen h-screen flex justify-center items-center">
       <Table />

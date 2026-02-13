@@ -10,33 +10,19 @@ interface RangeSliderProps {
 function RangeSlider({ setIsRangeSliderOpen }: RangeSliderProps) {
   const { setPriceRange, initialMinPrice, initialMaxPrice, priceRange } = useProductsStore();
   const { setPagination } = usePaginationStore();
-  const [minVal, setMinVal] = useState(initialMinPrice);
-  const [maxVal, setMaxVal] = useState(initialMaxPrice);
+  const [minVal, setMinVal] = useState(priceRange.price_min ?? initialMinPrice);
+  const [maxVal, setMaxVal] = useState(priceRange.price_max ?? initialMaxPrice);
   const middleRangeColor = useRef<HTMLDivElement | null>(null);
+  console.log(initialMaxPrice);
 
-  const minThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const thumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value);
-    if (value < maxVal) {
-      setMinVal(value);
-    }
-    if (value >= maxVal) {
-      setMinVal(maxVal);
-    }
-    if (value < initialMinPrice) {
-      setMinVal(initialMinPrice);
-    }
-  };
-
-  const maxThumbChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseInt(e.target.value);
-    if (value > minVal) {
-      setMaxVal(value);
-    }
-    if (value <= minVal) {
-      setMaxVal(minVal);
-    }
-    if (value > initialMaxPrice) {
-      setMaxVal(initialMaxPrice);
+    if (e.target.name === "min") {
+      const safeValue = Math.min(value, maxVal);
+      setMinVal(safeValue);
+    } else {
+      const safeValue = Math.max(value, minVal);
+      setMaxVal(safeValue);
     }
   };
 
@@ -61,7 +47,7 @@ function RangeSlider({ setIsRangeSliderOpen }: RangeSliderProps) {
     [initialMaxPrice, initialMinPrice],
   );
 
-  const debouncedSetPriceRange = useMemo(() => debounce((val: { price_min: number; price_max: number }) => setPriceRange(val), 500), [setPriceRange]);
+  const debouncedSetPriceRange = useMemo(() => debounce((val: { price_min: number; price_max: number }) => setPriceRange(val), 300), [setPriceRange]);
 
   const onMouseUp = () => {
     setPagination(0, 1);
@@ -70,6 +56,8 @@ function RangeSlider({ setIsRangeSliderOpen }: RangeSliderProps) {
   useEffect(() => {
     rangeChange(minVal, maxVal);
   }, [minVal, maxVal, rangeChange]);
+  
+
   return (
     <>
       <div
@@ -87,27 +75,29 @@ function RangeSlider({ setIsRangeSliderOpen }: RangeSliderProps) {
           <div ref={middleRangeColor} className="absolute w-full h-2 rounded-full top-1/2 -translate-y-1/2" />
           <input
             className="absolute w-full h-2 appearance-none bg-transparent pointer-events-none z-20 top-1/2 -translate-y-1/2"
-            onChange={minThumbChange}
+            onChange={thumbChange}
             onMouseUp={onMouseUp}
             type="range"
+            name="min"
             value={minVal}
             min={initialMinPrice}
             max={initialMaxPrice}
           />
           <input
             className="absolute w-full h-2 appearance-none bg-transparent pointer-events-none top-1/2 -translate-y-1/2"
-            onChange={maxThumbChange}
+            onChange={thumbChange}
             onMouseUp={onMouseUp}
             style={{ zIndex: maxVal <= initialMinPrice ? 30 : 10 }}
             type="range"
+            name="max"
             value={maxVal}
             min={initialMinPrice}
             max={initialMaxPrice}
           />
         </div>
         <div className="flex justify-evenly w-full text-2xl">
-          <PriceRangeInput value={minVal} title="Min" onChange={minThumbChange} setMinVal={setMinVal} minVal={minVal} maxVal={maxVal} />
-          <PriceRangeInput value={maxVal} title="Max" onChange={maxThumbChange} setMaxVal={setMaxVal} maxVal={maxVal} minVal={minVal} />
+          <PriceRangeInput title="Min" debounce={debouncedSetPriceRange} setMinVal={setMinVal} minVal={minVal} maxVal={maxVal} />
+          <PriceRangeInput title="Max" debounce={debouncedSetPriceRange} setMaxVal={setMaxVal} maxVal={maxVal} minVal={minVal} />
         </div>
       </div>
     </>

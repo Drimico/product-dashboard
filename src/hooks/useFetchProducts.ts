@@ -12,23 +12,31 @@ const useFetchProducts = () => {
     priceRange,
     selectedCategory,
     searchedWord,
+    initialMinPrice,
+    initialMaxPrice,
     setHasNextPage,
     setPriceRange,
     setInitialMinPrice,
     setInitialMaxPrice,
   } = useProductsStore();
   const { limit, offset } = usePaginationStore();
-  const prevFilterRef = useRef({ categoryId: selectedCategory?.id, searchedWord });
-
+  const prevFilterRef = useRef({ categoryId: selectedCategory?.id, searchedWord, initialMinPrice, initialMaxPrice });
+  
   const fetchProducts = useCallback(async () => {
     const currentCategoryId = selectedCategory?.id;
-    const filterChanged = prevFilterRef.current.categoryId !== currentCategoryId || prevFilterRef.current.searchedWord !== searchedWord;
+    const filterChanged =
+      prevFilterRef.current.categoryId !== currentCategoryId ||
+      prevFilterRef.current.searchedWord !== searchedWord ||
+      prevFilterRef.current.initialMinPrice !== initialMinPrice ||
+      prevFilterRef.current.initialMaxPrice !== initialMaxPrice;
 
-    prevFilterRef.current = { categoryId: currentCategoryId, searchedWord };
+    prevFilterRef.current = { categoryId: currentCategoryId, searchedWord, initialMinPrice, initialMaxPrice };
 
     const totalParamsForRange: PaginationParams = {
       limit: 0,
       offset: 0,
+      price_min: null,
+      price_max: null,
     };
     if (selectedCategory) totalParamsForRange.categoryId = selectedCategory.id;
     if (searchedWord) totalParamsForRange.title = searchedWord;
@@ -49,12 +57,16 @@ const useFetchProducts = () => {
     const totalParams: PaginationParams = {
       limit: 0,
       offset: 0,
+      price_min: null,
+      price_max: null,
     };
     if (selectedCategory) totalParams.categoryId = selectedCategory.id;
     if (searchedWord) totalParams.title = searchedWord;
-    if (priceRange.price_min > 0 || priceRange.price_max > 0) {
-      totalParams.price_min = priceRange.price_min;
-      totalParams.price_max = priceRange.price_max;
+    if (priceRange.price_min !== null && priceRange.price_max !== null) {
+      if (priceRange.price_min > 0 || priceRange.price_max > 0) {
+        totalParams.price_min = priceRange.price_min;
+        totalParams.price_max = priceRange.price_max;
+      }
     }
 
     const totalProductsFiltered = await pagination(totalParams);
@@ -63,12 +75,16 @@ const useFetchProducts = () => {
     const params: PaginationParams = {
       limit: limit + 1,
       offset,
+      price_min: null,
+      price_max: null,
     };
     if (selectedCategory) params.categoryId = selectedCategory.id;
     if (searchedWord) params.title = searchedWord;
-    if (priceRange.price_min > 0 || priceRange.price_max > 0) {
-      params.price_min = priceRange.price_min;
-      params.price_max = priceRange.price_max;
+    if (priceRange.price_min !== null && priceRange.price_max !== null) {
+      if (priceRange.price_min > 0 || priceRange.price_max > 0) {
+        params.price_min = priceRange.price_min;
+        params.price_max = priceRange.price_max;
+      }
     }
 
     const fetchedProducts = await pagination(params);
@@ -82,11 +98,11 @@ const useFetchProducts = () => {
     limit,
     offset,
     searchedWord,
-    priceRange.price_min,
-    priceRange.price_max,
+    priceRange,
+    initialMinPrice,
+    initialMaxPrice,
     setProducts,
     setTotalProducts,
-
     setHasNextPage,
     setPriceRange,
     setInitialMaxPrice,
