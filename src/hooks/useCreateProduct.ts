@@ -1,8 +1,9 @@
-import { createCategory, createProduct } from "@/api/requests";
+import { createCategory, createProduct, getCategories } from "@/api/requests";
 import { usePaginationStore } from "@/stores/usePaginationStore";
 import { useProductsStore } from "@/stores/useProductsStore";
 import axios from "axios";
 import { useState } from "react";
+import useFetchProducts from "./useFetchProducts";
 
 interface UseCreateProductProps {
   setIsAddProductModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -16,8 +17,9 @@ interface ProductForm {
   images: string[];
 }
 const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) => {
-  const { categories, totalProducts } = useProductsStore();
+  const { totalProducts } = useProductsStore();
   const { limit, setPagination } = usePaginationStore();
+  const {fetchProducts} = useFetchProducts()
   const [createdProduct, setCreatedProduct] = useState<ProductForm>({
     title: "",
     price: "",
@@ -62,8 +64,8 @@ const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) =
         name: createdProduct.categoryName,
         image: createdProduct.categoryImage,
       };
-
-      const existingCategorySlug = categories.find((category) => category.slug === categorySlug);
+      const allCategories = await getCategories();
+      const existingCategorySlug = allCategories.find((category) => category.slug === categorySlug);
       const categoryId = existingCategorySlug ? existingCategorySlug.id : (await createCategory(categoryCreateData)).id;
 
       const productCreateData = {
@@ -75,7 +77,7 @@ const useCreateProduct = ({ setIsAddProductModalOpen }: UseCreateProductProps) =
       };
 
       await createProduct(productCreateData);
-
+      await fetchProducts();
       const lastPage = Math.ceil((totalProducts.length + 1) / limit);
       setPagination((lastPage - 1) * limit, lastPage);
       setIsAddProductModalOpen(false);
